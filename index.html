@@ -42,17 +42,20 @@
     </header>
     <div id="container"></div>
     <form>
-        <button>Everyone's Here!</button>
+        <button id="default">Everyone's Here!</button>
     </form>
     <!-- <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script> -->
-    <script>window.jQuery || document.write('<script src="js/jquery-1.12.3.min.js">\x3C/script>')</script>
+    <script>
+        window.jQuery || document.write('<script src="js/jquery-1.12.3.min.js">\x3C/script>')
+    </script>
     <script src="js/main.js"></script>
     <script type="text/javascript">
-        (function() {
-            var entryID = getEntryID();
-
-            $('#container').text(entryID);
-        })();
+    $("#default").click(function() {
+        $.when(makePost()).done(function() {
+            alert("Successfully POSTed!");
+        });
+        return false;
+    });
     </script>
 </body>
 
