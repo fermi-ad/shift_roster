@@ -40,3 +40,58 @@ function makePost() {
             rosterPost(entryID);
         });
 }
+
+function getBosRoster() {
+    $.when(
+            $.ajax('https://www-bd.fnal.gov/BossOSchedule/schedule.jsp'))
+        .done(function(html) {
+            var cell = $('td:eq('+cellNumber()+')');
+            
+        });
+}
+
+function cellNumber() {
+    var now = new Date(),
+        hour = now.getHours(),
+        day = now.getDay(),
+        row;
+
+    var days = [weekend,weekday,weekday,weekday,weekday,weekday,weekend];
+
+    var cell = days[day]();
+
+    function weekday() {
+        if ([0,1,2,3,4,5,6,7].indexOf(hour) > -1) {
+            row = 0;
+        } else if ([8,9,10,11,12,13,14,15].indexOf(hour) > -1) {
+            row = 1;
+        } else if ([16,17,18,19,20,21,22,23].indexOf(hour) > -1) {
+            row = 2;
+        } else {
+            alert("Oh Noes! Something went wrong!");
+            console.log("Weekday didn't match any hour...");
+        }
+
+        return row * 7 + day;
+    }
+
+    function weekend() {
+        var nextDay = 0;
+
+        if ([0,1,2,3,4,5,6,7].indexOf(hour) > -1) {
+            row = 0;
+        } else if ([8,9,10,11,12,13,14,15,16,17,18,19].indexOf(hour) > -1) {
+            row = 1;
+        } else if ([20,21,22,23].indexOf(hour) > -1) {
+            row = 0;
+            nextDay = 1;
+        } else {
+            alert("Oh Noes! Something went wrong!");
+            console.log("Weekend didn't match any hour...");
+        }
+
+        return row * 7 + day + nextDay;
+    }
+
+    return cell;
+}
