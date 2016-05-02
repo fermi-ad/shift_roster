@@ -54,8 +54,10 @@
         $.when(opsList()).then(function(opsArray) {
             var form = [];
 
-            for (var i = 0; i < opsArray.length; i++) {
-                form.push('<input id="operator' + i + '" name="operator' + i + '" type="text">' + opsArray[i] + '</input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label>');
+            form.push('<div><input id="operator0" name="operator0" type="text" value="' + opsArray[0] + '"></input><input id="opCC0" name="crew_chief" type="radio" checked="checked"><label for="opCC0">CC</label></div>');
+
+            for (var i = 1; i < opsArray.length; i++) {
+                form.push('<div><input id="operator' + i + '" name="operator' + i + '" type="text" value="' + opsArray[i] + '"></input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label></div>');
             }
 
             form.unshift('<form id="filled">');

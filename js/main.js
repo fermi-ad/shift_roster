@@ -53,6 +53,10 @@ function opsList() {
             if (typeof operator == "string") {
                 var opArray = operator.split(' ');
 
+                if (opArray[0] == "KelliAnn") {
+                    opArray[0] = "Kelli";
+                }
+
                 if (cc == "crew_chief") {
                     opsArray.unshift(opArray[0]+' '+opArray[1]);
                 } else {
