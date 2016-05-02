@@ -41,12 +41,36 @@ function makePost() {
         });
 }
 
+function opsList() {
+    return getBosRoster().then(function(html){
+        var $cell = $(html).find('td:eq('+cellNumber()+')'),
+            opsArray = [];
+
+        for (var i = 0; i < 10; i++) {
+            var operator = $cell.find('div:eq('+i+')').attr('title'),
+                cc = $cell.find('div:eq('+i+')').find('span').attr('class');
+
+            if (typeof operator == "string") {
+                var opArray = operator.split(' ');
+
+                if (cc == "crew_chief") {
+                    opsArray.unshift(opArray[0]+' '+opArray[1]);
+                } else {
+                    opsArray.push(opArray[0]+' '+opArray[1]);
+                }
+            } else {
+                break;
+            } 
+        }
+
+        return opsArray;
+    });
+}
+
 function getBosRoster() {
-    $.when(
-            $.ajax('https://www-bd.fnal.gov/BossOSchedule/schedule.jsp'))
-        .done(function(html) {
-            var cell = $('td:eq('+cellNumber()+')');
-            
+    return $.when($.ajax('https://www-bd.fnal.gov/BossOSchedule/schedule.jsp'))
+        .done(function(html){
+            return html;
         });
 }
 

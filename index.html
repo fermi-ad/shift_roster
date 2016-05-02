@@ -40,19 +40,40 @@
     <header>
         <h1>Ops Shift Rosterer</h1>
     </header>
-    <div id="container"></div>
     <form>
         <button id="default">Everyone's Here!</button>
     </form>
+    <div id="container"></div>
     <!-- <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script> -->
     <script>
-        window.jQuery || document.write('<script src="js/jquery-1.12.3.min.js">\x3C/script>')
+    window.jQuery || document.write('<script src="js/jquery-1.12.3.min.js">\x3C/script>')
     </script>
     <script src="js/main.js"></script>
     <script type="text/javascript">
+    (function() {
+        $.when(opsList()).then(function(opsArray) {
+            var form = [];
+
+            for (var i = 0; i < opsArray.length; i++) {
+                form.push('<input id="operator' + i + '" name="operator' + i + '" type="text">' + opsArray[i] + '</input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label>');
+            }
+
+            form.unshift('<form id="filled">');
+            form.push('<button id="submit">Submit</button>');
+            form.push("</form>")
+
+            $("#container").html(form.join(''));
+        });
+    })();
     $("#default").click(function() {
         $.when(makePost()).done(function() {
             alert("Successfully POSTed!");
+        });
+        return false;
+    });
+    $("#submit").click(function() {
+        $.when().done(function() {
+            alert("Successfully submitted!");
         });
         return false;
     });
