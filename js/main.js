@@ -43,7 +43,8 @@ function makePost(array) {
 
 function opsList() {
     return getBosRoster().then(function(html){
-        var $cell = $(html).find('td:eq('+cellNumber()+')'),
+        var cellId = cellNumber(),
+            $cell = $(html).find('td:eq('+cellId[0]+')'),
             opsArray = [];
 
         for (var i = 0; i < 10; i++) {
@@ -67,6 +68,8 @@ function opsList() {
             } 
         }
 
+        opsArray.unshift(cellId[1]);
+
         return opsArray;
     });
 }
@@ -82,11 +85,13 @@ function cellNumber() {
     var now = new Date(),
         hour = now.getHours(),
         day = now.getDay(),
-        row;
+        row,
+        cell = [];
 
     var days = [weekend,weekday,weekday,weekday,weekday,weekday,weekend];
 
-    var cell = days[day]();
+    cell[0] = days[day]();
+    cell[1] = shiftTitle(cell[0]);
 
     function weekday() {
         if ([0,1,2,3,4,5,6,7].indexOf(hour) > -1) {
@@ -119,6 +124,32 @@ function cellNumber() {
         }
 
         return row * 7 + day + nextDay;
+    }
+
+    function shiftTitle(cell) {
+        if (cell == 1 || cell == 7) {
+            return "Owl+ Shift Roster";
+        } else if (1 < cell && cell < 7) {
+            return "Owl Shift Roster";
+        } else if (7 < cell && cell < 13) {
+            return "Day Shift Roster";
+        } else if (12 < cell && cell < 15) {
+            return "Day+ Shift Roster";
+        } else if (14 < cell && cell < 19) {
+            return "Evening Shift Roster";
+        }
+
+        if (0 < cell && cell < 6) {
+            return "Owl Shift Roster";
+        } else if (5 < cell && cell < 8) {
+            return "Owl+ Shift Roster";
+        } else if (7 < cell && cell < 13) {
+            return "Day Shift Roster";
+        } else if (12 < cell && cell < 15) {
+            return "Day+ Shift Roster";
+        } else if (14 < cell && cell < 19) {
+            return "Evening Shift Roster";
+        }
     }
 
     return cell;

@@ -33,6 +33,10 @@
         display: inline;
         margin: 5px;
     }
+
+    label {
+        font-weight: bold;
+    }
     </style>
 </head>
 
@@ -54,9 +58,11 @@
         $.when(opsList()).then(function(opsArray) {
             var form = [];
 
-            form.push('<div><input id="operator0" name="operator0" type="text" value="' + opsArray[0] + '"></input><input id="opCC0" name="crew_chief" type="radio" checked="checked"><label for="opCC0">CC</label></div>');
+            form.push('<label for="shiftTitle">Shift Title</label><div><input id="shiftTitle" name="shiftTitle" type="text" value="'+opsArray[0]+'"></div>');
 
-            for (var i = 1; i < opsArray.length; i++) {
+            form.push('<label for="operators">Operators</label><div><input id="operator1" name="operator1" type="text" value="' + opsArray[1] + '"></input><input id="opCC1" name="crew_chief" type="radio" checked="checked"><label for="opCC1">CC</label></div>');
+
+            for (var i = 2; i < opsArray.length; i++) {
                 form.push('<div><input id="operator' + i + '" name="operator' + i + '" type="text" value="' + opsArray[i] + '"></input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label></div>');
             }
 
@@ -75,21 +81,20 @@
     });
     $("#container").on('click', '#submit', function() {
         var form = $('#filled :input'),
-            shiftTitle = "Owl+ Shift Roster", //shiftTitle(),
             postArray = [];
 
-        for (var i = 0; i < form.length; i+=2) {
+        for (var i = 1; i < form.length; i+=2) {
             postArray.push(form[i].value);
         }
 
-        for (var i = 1; i < form.length; i+=2) {
+        for (var i = 2; i < form.length; i+=2) {
             if (form[i].checked) {
                 // Move crew chief to index 1 in array
-                postArray.splice(1, 0, postArray.splice(form[i].id.split('')[-1], 1)[0]);
+                postArray.splice(0, 0, postArray.splice(form[i].id.split('')[4]-1, 1)[0]);
             }
         }
 
-        postArray.unshift(shiftTitle);
+        postArray.unshift(form[0].value)
 
         $.when(makePost(postArray)).then(function() {
             alert("Successfully submitted!");
