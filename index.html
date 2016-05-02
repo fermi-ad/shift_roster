@@ -61,8 +61,8 @@
             }
 
             form.unshift('<form id="filled">');
+            form.push("</form>");
             form.push('<button id="submit">Submit</button>');
-            form.push("</form>")
 
             $("#container").html(form.join(''));
         });
@@ -73,8 +73,25 @@
         });
         return false;
     });
-    $("#submit").click(function() {
-        $.when().done(function() {
+    $("#container").on('click', '#submit', function() {
+        var form = $('#filled :input'),
+            shiftTitle = "Owl+ Shift Roster", //shiftTitle(),
+            postArray = [];
+
+        for (var i = 0; i < form.length; i+=2) {
+            postArray.push(form[i].value);
+        }
+
+        for (var i = 1; i < form.length; i+=2) {
+            if (form[i].checked) {
+                // Move crew chief to index 1 in array
+                postArray.splice(1, 0, postArray.splice(form[i].id.split('')[-1], 1)[0]);
+            }
+        }
+
+        postArray.unshift(shiftTitle);
+
+        $.when(makePost(postArray)).then(function() {
             alert("Successfully submitted!");
         });
         return false;

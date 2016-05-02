@@ -7,14 +7,14 @@ function parseForEntryID(htmlStr) {
     return $('.id a', el).text(); // All the class="id" elements
 }
 
-function rosterPost(id) {
+function rosterPost(id, array) {
     var entryText = "<u><strong>Owl+ Shift Roster</strong></u><ul><li>Michael Wren <strong>CC</strong></li><li>Kelli Rubrecht</li><li>Michael Olander</li><li>John Kolpin</li><li>Beau Harrison</li></ul>";
     var formData = new FormData();
     formData.append('entryID', id);
     formData.append('text', entryText);
 
     $.ajax({
-            url: 'https://www-bd.fnal.gov/Elog/addComment',
+            url: '/', // 'https://www-bd.fnal.gov/Elog/addComment',
             type: 'POST',
             data: formData,
             processData: false,
@@ -32,12 +32,12 @@ function rosterPost(id) {
 
 }
 
-function makePost() {
+function makePost(array) {
     $.when(
             $.ajax('https://www-bd.fnal.gov/Elog/?categoryNames=Shift+Change&limit=1'))
         .done(function(html) {
             var entryID = parseForEntryID(html);
-            rosterPost(entryID);
+            rosterPost(entryID, array);
         });
 }
 
