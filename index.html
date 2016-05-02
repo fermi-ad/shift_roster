@@ -4,13 +4,13 @@
 <head>
     <title>Shift Rosterer</title>
     <meta charset="utf-8">
-    <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">
-    </script>
-    <![endif]-->
     <style>
     label {
         font-weight: bold;
+    }
+
+    center { 
+        visibility: hidden;
     }
     </style>
 </head>
@@ -48,7 +48,9 @@
             postArray = [];
 
         for (var i = 1; i < form.length; i+=2) {
-            postArray.push(form[i].value);
+            if (form[i].value != "") {
+                postArray.push(form[i].value);
+            }
         }
 
         for (var i = 2; i < form.length; i+=2) {
