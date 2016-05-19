@@ -21,8 +21,11 @@
     </header>
     <div id="container"></div>
     <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/xml2json.js"></script>
+    <script src="js/date.js"></script>
     <script src="js/main.js"></script>
-    <script type="text/javascript">
+    <script type="text/javascript">(function() {getBosHTML();})();</script>
+    <!-- <script type="text/javascript">
     (function() {
         $.when(opsList()).then(function(opsArray) {
             var form = [];
@@ -67,7 +70,7 @@
         });
         return false;
     });
-    </script>
+    </script> -->
 </body>
 
 </html>

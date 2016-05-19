@@ -1,6 +1,32 @@
-'use strict';
+/*jshint esversion: 6 */
+/*globals $:false */
+/*globals X2JS */
+/*globals console */
+var x2js = new X2JS(),
+    now = new Date(),
+    startDateString = new Date(now.getTime()).toString("MM/dd/yyyy"),
+    endDate = new Date();
 
-function parseForEntryID(htmlStr) {
+endDate.setTime(now.getTime() + (1*60*60*1000));
+
+    var endDateString = new Date(endDate.getTime());
+
+endDateString = endDateString.toString('MM/dd/yyyy');
+
+function getBosHTML() {
+    $.ajax({
+        type:       "POST",
+        url:        "https://www-bd.fnal.gov/BossOSchedule/schedule",
+        cache:      false,
+        data:       `action=get_schedule&format=XML&start_date=${startDateString}&end_date=${endDateString}`,
+        dataType:   "XML"
+    })
+        .done(xml => console.log("Success: ",x2js.xml2json(xml)))
+        .fail((jqXHR, textStatus, errorText) => console.log("Error: ",jqXHR," ",textStatus," ",errorText))
+        .always(console.log(`startDate: ${startDateString} & endDate: ${endDateString}`));
+}
+
+/*function parseForEntryID(htmlStr) {
     var el = $('<div></div>');
     el.html(htmlStr);
 
@@ -166,4 +192,4 @@ function cellNumber() {
     }
 
     return cell;
-}
+}*/
