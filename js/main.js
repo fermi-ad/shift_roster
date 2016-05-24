@@ -2,10 +2,14 @@
 /*globals $:false */
 /*globals X2JS */
 /*globals console */
-var x2js = new X2JS(),
-    now = new Date(),
+var x2js            = new X2JS(),
+    now             = new Date(),
     startDateString = new Date(now.getTime()).toString("MM/dd/yyyy"),
-    endDate = new Date();
+    endDate         = new Date();
+
+const   workingStatus   = ["working", "shift coverage"],
+        actualNames     = ["KelliAnn"],
+        desiredNames    = ["Kelli"];
 
 endDate.setTime(now.getTime() + (1*60*60*1000));
 
@@ -13,17 +17,163 @@ endDate.setTime(now.getTime() + (1*60*60*1000));
 
 endDateString = endDateString.toString('MM/dd/yyyy');
 
-function getBosHTML() {
-    $.ajax({
+function opsList() {
+    return getBosRoster().then(function(xmlRoster) {
+        let roster      = x2js.xml2json(xmlRoster),
+            opsArray    = [],
+            shift       = shiftInfo(now),
+            operators   = shiftSelector(roster.schedule.day.shift, shift.type);
+
+        for (var i = 0; i < operators.length; i++) {
+            if (operators[i].is_chief == "true" && workingStatus.includes(operators[i].working_status)) {
+                opsArray.unshift(opsNames(operators[i]));
+            } else if (workingStatus.includes(operators[i].working_status)) {
+                opsArray.push(opsNames(operators[i]));
+            }
+        }
+
+        function opsNames(operator) {
+            if (actualNames.includes(operator.first_name)) {
+                operatorName = desiredNames[actualNames.indexOf(operator.first_name)] + " " + operator.last_name;
+            } else {
+                operatorName = operator.first_name + " " + operator.last_name;
+            }
+
+            return operatorName;
+        }
+
+        opsArray.unshift(shift.title);
+
+        return opsArray; // [shift.title, cc, op1, op2, op3, op4...]
+    });
+}
+
+function getBosRoster() {
+    return $.ajax({
         type:       "POST",
         url:        "https://www-bd.fnal.gov/BossOSchedule/schedule",
         cache:      false,
-        data:       `action=get_schedule&format=XML&start_date=${startDateString}&end_date=${endDateString}`,
+        data:       `action=get_schedule&format=XML&start_date=${startDateString}&end_date=${startDateString}`,
         dataType:   "XML"
     })
-        .done(xml => console.log("Success: ",x2js.xml2json(xml)))
-        .fail((jqXHR, textStatus, errorText) => console.log("Error: ",jqXHR," ",textStatus," ",errorText))
-        .always(console.log(`startDate: ${startDateString} & endDate: ${endDateString}`));
+        .done(function(xml) {
+            console.log(x2js.xml2json(xml));
+        })
+        .fail((jqXHR, textStatus, errorText) => console.log("Error: ",jqXHR," ",textStatus," ",errorText));
+}
+
+function shiftSelector(shifts, type) {
+    for (var i = 0; i < shifts.length; i++) {
+        if (shifts[i].type == type) {
+            return shifts[i].operator;
+        }
+    }
+}
+
+function operatorIsOnShift(operators) {
+    let workingOperators = [];
+
+    for (var i = 0; i < operators.length; i++) {
+        if (workingStatus.includes(operators[i].working_status)) {
+            workingOperators.push(operators[i]);
+        }
+    }
+
+    return workingOperators;
+}
+
+function shiftInfo(now) {
+    let hour        = now.getHours(),
+        day         = now.getDay(),
+        row,
+        cell,
+        shiftInfo   = {title:"",type:""};
+
+    const days = [weekend, weekday, weekday, weekday, weekday, weekday, weekend];
+
+    cell = days[day]();
+    shiftTitle(cell);
+
+    function weekday() {
+        if ([0, 1, 2, 3, 4, 5, 6, 7].indexOf(hour) > -1) {
+            row = 0; // Owl
+        } else if ([8, 9, 10, 11, 12, 13, 14, 15].indexOf(hour) > -1) {
+            row = 1; // Day
+        } else if ([16, 17, 18, 19, 20, 21, 22, 23].indexOf(hour) > -1) {
+            row = 2; // Evening
+        } else {
+            alert("Oh Noes! Something went wrong!");
+            console.log("Weekday didn't match any hour...");
+        }
+
+        return row * 7 + day;
+    }
+
+    function weekend() {
+        var nextDay = 0;
+
+        if ([0, 1, 2, 3, 4, 5, 6, 7].indexOf(hour) > -1) {
+            row = 0; // Owl
+        } else if ([8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].indexOf(hour) > -1) {
+            row = 1; // Day+
+        } else if ([20, 21, 22, 23].indexOf(hour) > -1) {
+            row = 0; // Owl+
+            nextDay = 1;
+        } else {
+            alert("Oh Noes! Something went wrong!");
+            console.log("Weekend didn't match any hour...");
+        }
+
+        return row * 7 + day + nextDay;
+    }
+
+    function shiftTitle(cell) {
+        if (cell == 1 || cell == 7) {
+            shiftInfo.title = "Owl+ Shift Roster";
+            shiftInfo.type  = "Owl";
+            return true;
+        } else if (1 < cell && cell < 7) {
+            shiftInfo.title = "Owl Shift Roster";
+            shiftInfo.type  = "Owl";
+            return true;
+        } else if (7 < cell && cell < 13) {
+            shiftInfo.title = "Day Shift Roster";
+            shiftInfo.type  = "Day";
+            return true;
+        } else if (12 < cell && cell < 15) {
+            shiftInfo.title = "Day+ Shift Roster";
+            shiftInfo.type  = "Day";
+            return true;
+        } else if (14 < cell && cell < 19) {
+            shiftInfo.title = "Evening Shift Roster";
+            shiftInfo.type  = "Evening";
+            return true;
+        }
+
+        if (0 < cell && cell < 6) {
+            shiftInfo.title = "Owl+ Shift Roster";
+            shiftInfo.type  = "Owl";
+            return true;
+        } else if (5 < cell && cell < 8) {
+            shiftInfo.title = "Owl+ Shift Roster";
+            shiftInfo.type  = "Owl";
+            return true;
+        } else if (7 < cell && cell < 13) {
+            shiftInfo.title = "Day Shift Roster";
+            shiftInfo.type  = "Day";
+            return true;
+        } else if (12 < cell && cell < 15) {
+            shiftInfo.title = "Day+ Shift Roster";
+            shiftInfo.type  = "Day";
+            return true;
+        } else if (14 < cell && cell < 19) {
+            shiftInfo.title = "Evening Shift Roster";
+            shiftInfo.type  = "Evening";
+            return true;
+        }
+    }
+
+    return shiftInfo;
 }
 
 /*function parseForEntryID(htmlStr) {
