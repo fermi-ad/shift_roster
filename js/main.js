@@ -2,14 +2,14 @@
 /*globals $:false */
 /*globals X2JS */
 /*globals console */
-var x2js            = new X2JS(),
-    now             = new Date(), // A string can be inserted to specify date, for testing ie. "05/24/16"
+var x2js            = new X2JS(), // Check out /docs/README_xml2json.md
+    now             = new Date("05/28/16 21:00:00"), // A string can be inserted to specify date, for testing ie. "05/24/16 21:00:00"
     startDateString = new Date(now.getTime()).toString("MM/dd/yyyy"),
     endDate         = new Date();
 
-const   workingStatus   = ["working", "shift coverage"],
-        actualNames     = ["KelliAnn"],
-        desiredNames    = ["Kelli"];
+const   workingStatus   = ["working", "shift coverage"], // BOS API "working" statuses
+        actualNames     = ["KelliAnn"], // Elog default names
+        desiredNames    = ["Kelli"]; // Desired name replacements
 
 endDate.setTime(now.getTime() + (1*60*60*1000));
 
@@ -21,25 +21,25 @@ function opsList() {
     return getBosRoster().then(function(xmlRoster) {
         let roster      = x2js.xml2json(xmlRoster),
             opsArray    = [],
-            shift       = shiftInfo(now),
+            shift       = shiftInfo(now), // returns {title, type} based on date object
             operators   = [],
             shifts      = roster.schedule.day.shift;
 
         for (var i = 0; i < shifts.length; i++) {
-            if (shifts[i].type == "Owl") { // shift.type can be replaced with "Owl", "Day", or "Evening" to select the shift in the day
+            if (shifts[i].type == shift.type) { // shift.type can be replaced with "Owl", "Day", or "Evening" to select the shift in the day
                 operators = shifts[i].operator;
             }
         }
 
         for (var i = 0; i < operators.length; i++) {
             if (operators[i].is_chief == "true" && workingStatus.includes(operators[i].working_status)) {
-                opsArray.unshift(opsNames(operators[i]));
+                opsArray.unshift(opsNames(operators[i])); // Put CC at beginning of array
             } else if (workingStatus.includes(operators[i].working_status)) {
-                opsArray.push(opsNames(operators[i]));
+                opsArray.push(opsNames(operators[i])); // Append each operator
             }
         }
 
-        function opsNames(operator) {
+        function opsNames(operator) { // Concatonate names and cross verify with desiredNames array for name changes
             if (actualNames.includes(operator.first_name)) {
                 operatorName = desiredNames[actualNames.indexOf(operator.first_name)] + " " + operator.last_name;
             } else {
@@ -49,13 +49,13 @@ function opsList() {
             return operatorName;
         }
 
-        opsArray.unshift(shift.title);
+        opsArray.unshift(shift.title); // Put title at the beginning of the array
 
         return opsArray; // [shift.title, cc, op1, op2, op3, op4...]
     });
 }
 
-function getBosRoster() {
+function getBosRoster() { // POST request to BOS for today's shifts
     return $.ajax({
         type:       "POST",
         url:        "https://www-bd.fnal.gov/BossOSchedule/schedule",
@@ -165,10 +165,10 @@ function shiftInfo(now) {
 
 function makePost(array) {
     $.when(
-        $.ajax('https://www-bd.fnal.gov/Elog/?categoryNames=Shift+Change&limit=1'))
+        $.ajax('https://www-bd.fnal.gov/Elog/?categoryNames=Shift+Change&limit=1')) // Find most recent "Shift Change" note in Elog
         .done(function(html) {
-            let entryID = parseForEntryID(html);
-            rosterPost(entryID, array);
+            let entryID = parseForEntryID(html); // parse returned html for entryID
+            rosterPost(entryID, array); // using entryID parse array for preformatted shift roster entry
         });
 }
 
@@ -199,7 +199,7 @@ function rosterPost(id, array) {
     formData.append('text', entryText);
 
     $.ajax({
-            url: 'https://www-bd.fnal.gov/Elog/addComment',
+            url: 'https://www-bd.fnal.gov/Elog/addComment', // POST
             type: 'POST',
             data: formData,
             processData: false,
