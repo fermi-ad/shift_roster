@@ -29,14 +29,22 @@
     <script type="text/javascript">
     (function() {
         $.when(opsList()).then(function(opsArray) {
-            var form = [];
+            let form        = [],
+                numberOfOps = 4,
+                i;
 
             form.push('<label for="shiftTitle">Shift Title</label><div><input id="shiftTitle" name="shiftTitle" type="text" value="'+opsArray[0]+'"></div>');
 
             form.push('<label for="operators">Operators</label><div><input id="operator1" name="operator1" type="text" value="' + opsArray[1] + '"></input><input id="opCC1" name="crew_chief" type="radio" checked="checked"><label for="opCC1">CC</label></div>');
 
-            for (var i = 2; i < opsArray.length; i++) {
+            for (i = 2; i < opsArray.length; i++) {
                 form.push('<div><input id="operator' + i + '" name="operator' + i + '" type="text" value="' + opsArray[i] + '"></input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label></div>');
+            }
+
+            if (opsArray.length < numberOfOps + 2) {
+                for (i = i; i < numberOfOps + 2; i++) {
+                    form.push('<div><input id="operator' + i + '" name="operator' + i + '" type="text" value=""></input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label></div>');
+                }
             }
 
             form.unshift('<form id="filled">');

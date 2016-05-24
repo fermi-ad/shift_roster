@@ -3,7 +3,7 @@
 /*globals X2JS */
 /*globals console */
 var x2js            = new X2JS(),
-    now             = new Date(),
+    now             = new Date(), // A string can be inserted to specify date, for testing ie. "05/24/16"
     startDateString = new Date(now.getTime()).toString("MM/dd/yyyy"),
     endDate         = new Date();
 
@@ -26,7 +26,7 @@ function opsList() {
             shifts      = roster.schedule.day.shift;
 
         for (var i = 0; i < shifts.length; i++) {
-            if (shifts[i].type == shift.type) {
+            if (shifts[i].type == "Owl") { // shift.type can be replaced with "Owl", "Day", or "Evening" to select the shift in the day
                 operators = shifts[i].operator;
             }
         }
