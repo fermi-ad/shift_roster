@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Shift Rosterer</title>
+    <meta charset="utf-8">
+    <style>
+    label {
+        font-weight: bold;
+    }
+
+    center { 
+        visibility: hidden;
+    }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Ops Shift Rosterer</h1>
+    </header>
+    <div id="container"></div>
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/main.js"></script>
+    <script type="text/javascript">
+    (function() {
+        $.when(opsList()).then(function(opsArray) {
+            var form = [];
+
+            form.push('<label for="shiftTitle">Shift Title</label><div><input id="shiftTitle" name="shiftTitle" type="text" value="'+opsArray[0]+'"></div>');
+
+            form.push('<label for="operators">Operators</label><div><input id="operator1" name="operator1" type="text" value="' + opsArray[1] + '"></input><input id="opCC1" name="crew_chief" type="radio" checked="checked"><label for="opCC1">CC</label></div>');
+
+            for (var i = 2; i < opsArray.length; i++) {
+                form.push('<div><input id="operator' + i + '" name="operator' + i + '" type="text" value="' + opsArray[i] + '"></input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label></div>');
+            }
+
+            form.unshift('<form id="filled">');
+            form.push("</form>");
+            form.push('<button id="submit">Submit</button>');
+
+            $("#container").html(form.join(''));
+        });
+    })();
+
+    $("#container").on('click', '#submit', function() {
+        var form = $('#filled :input'),
+            postArray = [];
+
+        for (var i = 1; i < form.length; i+=2) {
+            if (form[i].value != "") {
+                postArray.push(form[i].value);
+            }
+        }
+
+        for (var i = 2; i < form.length; i+=2) {
+            if (form[i].checked) {
+                // Move crew chief to index 1 in array
+                postArray.splice(0, 0, postArray.splice(form[i].id.split('')[4]-1, 1)[0]);
+            }
+        }
+
+        postArray.unshift(form[0].value)
+
+        $.when(makePost(postArray)).then(function() {
+            alert("Successfully submitted!");
+        });
+        return false;
+    });
+    </script>
+</body>
+
+</html>
