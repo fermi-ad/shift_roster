@@ -22,7 +22,14 @@ function opsList() {
         let roster      = x2js.xml2json(xmlRoster),
             opsArray    = [],
             shift       = shiftInfo(now),
-            operators   = shiftSelector(roster.schedule.day.shift, shift.type);
+            operators   = [],
+            shifts      = roster.schedule.day.shift;
+
+        for (var i = 0; i < shifts.length; i++) {
+            if (shifts[i].type == shift.type) {
+                operators = shifts[i].operator;
+            }
+        }
 
         for (var i = 0; i < operators.length; i++) {
             if (operators[i].is_chief == "true" && workingStatus.includes(operators[i].working_status)) {
@@ -60,26 +67,6 @@ function getBosRoster() {
             console.log(x2js.xml2json(xml));
         })
         .fail((jqXHR, textStatus, errorText) => console.log("Error: ",jqXHR," ",textStatus," ",errorText));
-}
-
-function shiftSelector(shifts, type) {
-    for (var i = 0; i < shifts.length; i++) {
-        if (shifts[i].type == type) {
-            return shifts[i].operator;
-        }
-    }
-}
-
-function operatorIsOnShift(operators) {
-    let workingOperators = [];
-
-    for (var i = 0; i < operators.length; i++) {
-        if (workingStatus.includes(operators[i].working_status)) {
-            workingOperators.push(operators[i]);
-        }
-    }
-
-    return workingOperators;
 }
 
 function shiftInfo(now) {
