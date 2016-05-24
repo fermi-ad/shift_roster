@@ -3,9 +3,9 @@
 /*globals X2JS */
 /*globals console */
 var x2js            = new X2JS(), // Check out /docs/README_xml2json.md
-    now             = new Date("05/28/16 21:00:00"), // A string can be inserted to specify date, for testing ie. "05/24/16 21:00:00"
+    now             = new Date(), // A string can be inserted to specify date, for testing ie. "2016-05-29T21:00:00"
     startDateString = new Date(now.getTime()).toString("MM/dd/yyyy"),
-    endDate         = new Date();
+    endDate         = now;
 
 const   workingStatus   = ["working", "shift coverage"], // BOS API "working" statuses
         actualNames     = ["KelliAnn"], // Elog default names
@@ -13,9 +13,7 @@ const   workingStatus   = ["working", "shift coverage"], // BOS API "working" st
 
 endDate.setTime(now.getTime() + (1*60*60*1000));
 
-    var endDateString = new Date(endDate.getTime());
-
-endDateString = endDateString.toString('MM/dd/yyyy');
+var endDateString = new Date(endDate.getTime()).toString('MM/dd/yyyy');
 
 function opsList() {
     return getBosRoster().then(function(xmlRoster) {
@@ -25,13 +23,13 @@ function opsList() {
             operators   = [],
             shifts      = roster.schedule.day.shift;
 
-        for (var i = 0; i < shifts.length; i++) {
+        for (let i = 0; i < shifts.length; i++) {
             if (shifts[i].type == shift.type) { // shift.type can be replaced with "Owl", "Day", or "Evening" to select the shift in the day
                 operators = shifts[i].operator;
             }
         }
 
-        for (var i = 0; i < operators.length; i++) {
+        for (let i = 0; i < operators.length; i++) {
             if (operators[i].is_chief == "true" && workingStatus.includes(operators[i].working_status)) {
                 opsArray.unshift(opsNames(operators[i])); // Put CC at beginning of array
             } else if (workingStatus.includes(operators[i].working_status)) {
@@ -56,6 +54,8 @@ function opsList() {
 }
 
 function getBosRoster() { // POST request to BOS for today's shifts
+    dateAdjust();
+
     return $.ajax({
         type:       "POST",
         url:        "https://www-bd.fnal.gov/BossOSchedule/schedule",
@@ -67,6 +67,21 @@ function getBosRoster() { // POST request to BOS for today's shifts
             console.log(x2js.xml2json(xml));
         })
         .fail((jqXHR, textStatus, errorText) => console.log("Error: ",jqXHR," ",textStatus," ",errorText));
+}
+
+function dateAdjust() {
+    let dateAdjustNow = new Date();
+
+    if (now.getHours() > 7 && (now.getDay() === 0 || now.getDay() === 6)) { // getHours returns 0-23 // getDay returns 0-6 Sun-Sat
+        // set start and end date strings to midnight of the next day
+        dateAdjustNow.setDate(now.getDate()+1); // Next day
+        dateAdjustNow.setHours(0); // Midnight
+        startDateString = new Date(dateAdjustNow.getTime()).toString("MM/dd/yyyy");
+        endDate.setTime(dateAdjustNow.getTime() + (1*60*60*1000));
+        endDateString = new Date(dateAdjustNow.getTime()).toString("MM/dd/yyyy");
+    }
+
+    return false; // no date adjust needed
 }
 
 function shiftInfo(now) {
