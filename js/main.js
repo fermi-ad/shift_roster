@@ -5,7 +5,7 @@
 var x2js            = new X2JS(), // Check out /docs/README_xml2json.md
     now             = new Date(), // A string can be inserted to specify date, for testing ie. "2016-05-29T21:00:00"
     startDateString = new Date(now.getTime()).toString("MM/dd/yyyy"),
-    endDate         = now;
+    endDate         = new Date();
 
 const   workingStatus   = ["working", "shift coverage"], // BOS API "working" statuses
         actualNames     = ["KelliAnn"], // Elog default names
