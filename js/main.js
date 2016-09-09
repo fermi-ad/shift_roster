@@ -168,7 +168,7 @@ function shiftInfo(now) {
             shiftInfo.title = "Day+ Shift Roster";
             shiftInfo.type  = "Day";
             return true;
-        } else if (14 < cell && cell < 19) {
+        } else if (14 < cell && cell <= 19) {
             shiftInfo.title = "Evening Shift Roster";
             shiftInfo.type  = "Evening";
             return true;
