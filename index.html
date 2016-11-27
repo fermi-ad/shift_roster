@@ -9,7 +9,7 @@
         font-weight: bold;
     }
 
-    center { 
+    center {
         visibility: hidden;
     }
     </style>
@@ -74,9 +74,12 @@
 
         postArray.unshift(form[0].value)
 
-        $.when(makePost(postArray)).then(function() {
-            alert("Successfully submitted!");
-        });
+        // $.when(makePost(postArray)).then(function() {
+        //     alert("Successfully submitted!");
+        // });
+
+        makePost(postArray);
+
         return false;
     });
     </script>

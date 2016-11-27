@@ -180,7 +180,7 @@ function shiftInfo(now) {
 
 function makePost(array) {
     $.when(
-        $.ajax('https://www-bd.fnal.gov/Elog/?categoryNames=Shift+Change&limit=1')) // Find most recent "Shift Change" note in Elog
+        $.ajax('https://www-bd.fnal.gov/Elog/?orCategoryName=Shift+Change&entryLimit=1')) // Find most recent "Shift Change" note in Elog
         .done(function(html) {
             let entryID = parseForEntryID(html); // parse returned html for entryID
             rosterPost(entryID, array); // using entryID parse array for preformatted shift roster entry
@@ -210,24 +210,23 @@ function rosterPost(id, array) {
 
     let entryText = entryArray.join('');
 
-    formData.append('entryID', id);
+    formData.append('entryId', id);
     formData.append('text', entryText);
 
     $.ajax({
-            url: 'https://www-bd.fnal.gov/Elog/addComment', // POST
+            url: 'https://www-bd.fnal.gov/Elog/api/add/comment', // POST
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false
         })
         .done(function() {
+            alert("Comment Successfully submitted");
             console.log("POST success");
         })
         .fail(function() {
+            alert("Something went wrong");
             console.log("POST error");
-        })
-        .always(function() {
-            console.log("POST complete");
         });
 
 }
