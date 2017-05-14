@@ -3,7 +3,6 @@
   opsList(now).then(buildForm)
 })()
 
-const x2js = new window.X2JS() // /docs/README_xml2json.md
 const startDateString = window.moment().format('L')
 const endDate = window.moment().add(1, 'hour')
 const endDateString = endDate.format('L')
@@ -92,6 +91,7 @@ function opsList (now) {
 }
 
 function rosterFromXml (xmlRoster, now) {
+  const x2js = new X2JS()
   const roster = x2js.xml2json(xmlRoster)
   const opsArray = []
   const shiftinfo = shiftInfo(now)
@@ -141,6 +141,7 @@ function getBosRoster (now) {
     dataType: 'XML'
   })
   .done(xml => {
+    const x2js = new window.X2JS()
     console.log(x2js.xml2json(xml))
     return {xml, now: newDate.now} || {xml, now}
   })
