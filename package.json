@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape tests/*.js | tap-dot"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   "author": "Beau Harrison <beau@fnal.gov>",
   "homepage": "https://bitbucket.org/beaunus/shiftrosterer#readme",
   "devDependencies": {
-    "mocha": "^3.3.0"
+    "tape": "^4.6.3"
   },
   "dependencies": {
     "jquery": "^3.2.1",

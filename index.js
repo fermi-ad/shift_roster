@@ -1,11 +1,9 @@
 (function () {
   const now = window.moment()
-  opsList(now).then(buildForm)
+  const startDateString = window.moment().format('L')
+  const endDateString = window.moment().add(1, 'hour').format('L')
+  opsList(now, startDateString, endDateString).then(buildForm)
 })()
-
-const startDateString = window.moment().format('L')
-const endDate = window.moment().add(1, 'hour')
-const endDateString = endDate.format('L')
 
 // BOS API "working" statuses
 const workingStatus = ['working', 'shift coverage']
@@ -84,8 +82,8 @@ function submit () {
   return true
 }
 
-function opsList (now) {
-  return getBosRoster(now, response => {
+function opsList (now, startDateString, endDateString) {
+  return getBosRoster(now, startDateString, endDateString, response => {
     rosterFromXml(response.xml, response.now)
   })
 }
@@ -96,12 +94,9 @@ function rosterFromXml (xmlRoster, now) {
   const roster = x2js.xml2js(xmlString)
   const opsArray = []
   const shiftinfo = shiftInfo(now)
-  let operators = []
   const shifts = roster.schedule.day.shift
 
-  for (let shift of shifts) {
-    if (shift.type === shiftinfo.type) operators = shift.operator
-  }
+  const operators = shifts.filter(shift => shift.type === shiftinfo.type)
 
   for (let operator of operators) {
     const isCrewChief = operator.is_chief === 'true'
@@ -129,7 +124,7 @@ function opsNames (operator) {
   }
 }
 
-function getBosRoster (now, callback) {
+function getBosRoster (now, startDateString, endDateString, callback) {
   const newDate = dateAdjust(now)
 
   const data = `action=get_schedule&start_date=${newDate.startDateString || startDateString}&end_date=${newDate.endDateString || endDateString}`
@@ -168,7 +163,6 @@ function dateAdjust (now) {
 function shiftInfo (shiftTime) {
   const hour = shiftTime.hour()
   const day = shiftTime.day()
-  const shiftInfo = {title: '', type: ''}
   const days = [weekend, weekday, weekday, weekday, weekday, weekday, weekend]
   const owlShift = [...range(0, 8)]
   const dayShift = [...range(8, 16)]
@@ -176,7 +170,7 @@ function shiftInfo (shiftTime) {
   const dayShiftPlus = [...range(8, 20)]
   const owlShiftPlus = [...range(20, 24)]
 
-  shiftTitle(days[day]())
+  return shiftTitle(days[day]())
 
   function weekday () {
     let row
@@ -192,7 +186,9 @@ function shiftInfo (shiftTime) {
       console.log("Weekday didn't match any hour...")
     }
 
-    return row * 7 + day
+    const cell = row * 7 + day
+
+    return ({cell, owlPlus: false})
   }
 
   function weekend () {
@@ -211,56 +207,33 @@ function shiftInfo (shiftTime) {
       console.log("Weekend didn't match any hour...")
     }
 
-    return row * 7 + day + nextDay
+    const cell = row * 7 + day + nextDay
+
+    return ({cell, owlPlus: nextDay})
   }
 
-  function shiftTitle (cell) {
-    if (cell === 1 || cell === 7) {
-      shiftInfo.title = 'Owl+ Shift Roster'
-      shiftInfo.type = 'Owl'
-      return true
-    } else if (cell > 1 && cell < 7) {
-      shiftInfo.title = 'Owl Shift Roster'
-      shiftInfo.type = 'Owl'
-      return true
-    } else if (cell > 7 && cell < 13) {
-      shiftInfo.title = 'Day Shift Roster'
-      shiftInfo.type = 'Day'
-      return true
-    } else if (cell > 12 && cell < 15) {
-      shiftInfo.title = 'Day+ Shift Roster'
-      shiftInfo.type = 'Day'
-      return true
-    } else if (cell > 14 && cell < 19) {
-      shiftInfo.title = 'Evening Shift Roster'
-      shiftInfo.type = 'Evening'
-      return true
-    }
+  function shiftTitle ({cell, owlPlus}) {
+    const shiftinfo = {title: '', type: ''}
 
-    if (cell > 0 && cell < 6) {
-      shiftInfo.title = 'Owl+ Shift Roster'
-      shiftInfo.type = 'Owl'
-      return true
-    } else if (cell > 5 && cell < 8) {
-      shiftInfo.title = 'Owl+ Shift Roster'
-      shiftInfo.type = 'Owl'
-      return true
+    if (cell === 0 || cell === 1 || (cell === 7 && owlPlus)) {
+      shiftinfo.title = 'Owl+ Shift Roster'
+      shiftinfo.type = 'Owl'
+    } else if (cell === 7 || (cell > 12 && cell < 15)) {
+      shiftinfo.title = 'Day+ Shift Roster'
+      shiftinfo.type = 'Day'
+    } else if (cell > 0 && cell < 8) {
+      shiftinfo.title = 'Owl Shift Roster'
+      shiftinfo.type = 'Owl'
     } else if (cell > 7 && cell < 13) {
-      shiftInfo.title = 'Day Shift Roster'
-      shiftInfo.type = 'Day'
-      return true
-    } else if (cell > 12 && cell < 15) {
-      shiftInfo.title = 'Day+ Shift Roster'
-      shiftInfo.type = 'Day'
-      return true
+      shiftinfo.title = 'Day Shift Roster'
+      shiftinfo.type = 'Day'
     } else if (cell > 14 && cell <= 19) {
-      shiftInfo.title = 'Evening Shift Roster'
-      shiftInfo.type = 'Evening'
-      return true
+      shiftinfo.title = 'Evening Shift Roster'
+      shiftinfo.type = 'Evening'
     }
-  }
 
-  return shiftInfo
+    return shiftinfo
+  }
 }
 
 function makePost (array) {
