@@ -91,8 +91,9 @@ function opsList (now) {
 }
 
 function rosterFromXml (xmlRoster, now) {
-  const x2js = new X2JS()
-  const roster = x2js.xml2js(xmlRoster)
+  const x2js = new window.X2JS()
+  const xmlString = new window.XMLSerializer().serializeToString(xmlRoster)
+  const roster = x2js.xml2js(xmlString)
   const opsArray = []
   const shiftinfo = shiftInfo(now)
   let operators = []
@@ -142,7 +143,8 @@ function getBosRoster (now) {
   })
   .done(xml => {
     const x2js = new window.X2JS()
-    console.log(x2js.xml2js(xml))
+    const xmlString = new window.XMLSerializer().serializeToString(xml)
+    console.log(x2js.xml2js(xmlString))
     return {xml, now: newDate.now} || {xml, now}
   })
   .fail((jqXHR, textStatus, errorText) => {
