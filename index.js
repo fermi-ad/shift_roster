@@ -1,12 +1,12 @@
 (function () {
-  opsList().then(buildForm)
+  const now = window.moment()
+  opsList(now).then(buildForm)
 })()
 
 const x2js = new window.X2JS() // /docs/README_xml2json.md
-let now = window.moment()
-let startDateString = now.format('L')
+const startDateString = window.moment().format('L')
 const endDate = window.moment().add(1, 'hour')
-let endDateString = endDate.format('L')
+const endDateString = endDate.format('L')
 
 // BOS API "working" statuses
 const workingStatus = ['working', 'shift coverage']
@@ -85,11 +85,13 @@ function submit () {
   return true
 }
 
-function opsList () {
-  return getBosRoster().then(rosterFromXml)
+function opsList (now) {
+  return getBosRoster(now).then(response => {
+    rosterFromXml(response.xml, response.now)
+  })
 }
 
-function rosterFromXml (xmlRoster) {
+function rosterFromXml (xmlRoster, now) {
   const roster = x2js.xml2json(xmlRoster)
   const opsArray = []
   const shiftinfo = shiftInfo(now)
@@ -126,10 +128,10 @@ function opsNames (operator) {
   }
 }
 
-function getBosRoster () {
-  dateAdjust()
+function getBosRoster (now) {
+  const newDate = dateAdjust(now)
 
-  const data = `action=get_schedule&start_date=${startDateString}&end_date=${endDateString}`
+  const data = `action=get_schedule&start_date=${newDate.startDateString || startDateString}&end_date=${newDate.endDateString || endDateString}`
 
   return window.$.ajax({
     type: 'POST',
@@ -138,18 +140,23 @@ function getBosRoster () {
     data: data,
     dataType: 'XML'
   })
-  .done(function (xml) {
+  .done(xml => {
     console.log(x2js.xml2json(xml))
+    return {xml, now: newDate.now} || {xml, now}
   })
-  .fail((jqXHR, textStatus, errorText) => console.log('Error: ', jqXHR, ' ', textStatus, ' ', errorText))
+  .fail((jqXHR, textStatus, errorText) => {
+    console.log('Error: ', jqXHR, ' ', textStatus, ' ', errorText)
+  })
 }
 
-function dateAdjust () {
+function dateAdjust (now) {
   // after 20:00 on Saturday or Sunday
   if (now.hour() > 19 && (now.day() === 0 || now.day() === 6)) {
-    now = window.moment().add(1, 'day').startOf('day')
-    startDateString = now.format('L')
-    endDateString = now.add(1, 'hour').format('L')
+    const dateChange = {}
+    dateChange.now = window.moment().add(1, 'day').startOf('day')
+    dateChange.startDateString = now.format('L')
+    dateChange.endDateString = now.add(1, 'hour').format('L')
+    return dateChange
   }
 
   return false // no date adjust needed
