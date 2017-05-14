@@ -85,7 +85,7 @@ function submit () {
 }
 
 function opsList (now) {
-  return getBosRoster(now).then(response => {
+  return getBosRoster(now, response => {
     rosterFromXml(response.xml, response.now)
   })
 }
@@ -129,7 +129,7 @@ function opsNames (operator) {
   }
 }
 
-function getBosRoster (now) {
+function getBosRoster (now, callback) {
   const newDate = dateAdjust(now)
 
   const data = `action=get_schedule&start_date=${newDate.startDateString || startDateString}&end_date=${newDate.endDateString || endDateString}`
@@ -145,7 +145,7 @@ function getBosRoster (now) {
     const x2js = new window.X2JS()
     const xmlString = new window.XMLSerializer().serializeToString(xml)
     console.log(x2js.xml2js(xmlString))
-    return {xml, now: newDate.now} || {xml, now}
+    newDate ? callback({xml, now: newDate.now}) : callback({xml, now})
   })
   .fail((jqXHR, textStatus, errorText) => {
     console.log('Error: ', jqXHR, ' ', textStatus, ' ', errorText)
