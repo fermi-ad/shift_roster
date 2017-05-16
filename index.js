@@ -2,7 +2,7 @@
   const now = window.moment()
   const startDateString = window.moment().format('L')
   const endDateString = window.moment().add(1, 'hour').format('L')
-  opsList(now, startDateString, endDateString).then(buildForm)
+  opsList(now, startDateString, endDateString, buildForm)
 })()
 
 // BOS API "working" statuses
@@ -82,9 +82,9 @@ function submit () {
   return true
 }
 
-function opsList (now, startDateString, endDateString) {
+function opsList (now, startDateString, endDateString, callback) {
   return getBosRoster(now, startDateString, endDateString, response => {
-    rosterFromXml(response.xml, response.now)
+    callback(rosterFromXml(response.xml, response.now))
   })
 }
 
@@ -96,7 +96,8 @@ function rosterFromXml (xmlRoster, now) {
   const shiftinfo = shiftInfo(now)
   const shifts = roster.schedule.day.shift
 
-  const operators = shifts.filter(shift => shift.type === shiftinfo.type)
+  const shift = shifts.filter(shift => shift.type === shiftinfo.type)
+  const operators = shift[0].operator
 
   for (let operator of operators) {
     const isCrewChief = operator.is_chief === 'true'
