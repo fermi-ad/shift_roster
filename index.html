@@ -1,88 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <title>Shift Rosterer</title>
-    <meta charset="utf-8">
-    <style>
-    label {
-        font-weight: bold;
-    }
-
-    center {
-        visibility: hidden;
-    }
-    </style>
-</head>
-
-<body>
-    <header>
-        <h1>Ops Shift Rosterer</h1>
-    </header>
-    <div id="container"></div>
-    <pre class="prettyprint"></pre>
-    <script src="js/jquery-1.12.3.min.js"></script>
-    <script src="js/xml2json.js"></script>
-    <script src="js/date.js"></script>
-    <script src="js/main.js"></script>
-    <!-- <script type="text/javascript">(function() {getBosRoster();})();</script> -->
-    <script type="text/javascript">
-    (function() {
-        $.when(opsList()).then(function(opsArray) {
-            let form        = [],
-                numberOfOps = 4,
-                i;
-
-            form.push('<label for="shiftTitle">Shift Title</label><div><input id="shiftTitle" name="shiftTitle" type="text" value="'+opsArray[0]+'"></div>');
-
-            form.push('<label for="operators">Operators</label><div><input id="operator1" name="operator1" type="text" value="' + opsArray[1] + '"></input><input id="opCC1" name="crew_chief" type="radio" checked="checked"><label for="opCC1">CC</label></div>');
-
-            for (i = 2; i < opsArray.length; i++) {
-                form.push('<div><input id="operator' + i + '" name="operator' + i + '" type="text" value="' + opsArray[i] + '"></input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label></div>');
-            }
-
-            if (opsArray.length < numberOfOps + 2) {
-                for (i = i; i < numberOfOps + 2; i++) {
-                    form.push('<div><input id="operator' + i + '" name="operator' + i + '" type="text" value=""></input><input id="opCC' + i + '" name="crew_chief" type="radio"><label for="opCC' + i + '">CC</label></div>');
-                }
-            }
-
-            form.unshift('<form id="filled">');
-            form.push("</form>");
-            form.push('<button id="submit">Submit</button>');
-
-            $("#container").html(form.join(''));
-        });
-    })();
-
-    $("#container").on('click', '#submit', function() {
-        var form = $('#filled :input'),
-            postArray = [];
-
-        for (var i = 1; i < form.length; i+=2) {
-            if (form[i].value != "") {
-                postArray.push(form[i].value);
-            }
-        }
-
-        for (var i = 2; i < form.length; i+=2) {
-            if (form[i].checked) {
-                // Move crew chief to index 1 in array
-                postArray.splice(0, 0, postArray.splice(form[i].id.split('')[4]-1, 1)[0]);
-            }
-        }
-
-        postArray.unshift(form[0].value)
-
-        // $.when(makePost(postArray)).then(function() {
-        //     alert("Successfully submitted!");
-        // });
-
-        makePost(postArray);
-
-        return false;
-    });
-    </script>
-</body>
-
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Shift Rosterer</title>
+        <style media="screen">
+            label {font-weight: bold;}
+            center {visibility: hidden;}
+        </style>
+    </head>
+    <body>
+        <header><h2>Ops Shift Roster</h2></header>
+        <div id="container"></div>
+        <!-- TODO: Add <pre class="prettyprint"></pre> for displaying result -->
+        <script src="node_modules/x2js/x2js.js"></script>
+        <script src="node_modules/moment/moment.js"></script>
+        <script src="node_modules/jquery/dist/jquery.js"></script>
+        <script src="index.js"></script>
+    </body>
 </html>
