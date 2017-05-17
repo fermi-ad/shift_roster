@@ -56,7 +56,7 @@ function buildForm (opsArray) {
 }
 
 function submit () {
-  const form = document.querySelectorAll('#filled :input')
+  const form = document.querySelectorAll('#filled input')
   const postArray = []
 
   for (let i = 1; i < form.length; i += 2) {
