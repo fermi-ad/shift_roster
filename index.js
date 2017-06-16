@@ -52,7 +52,8 @@ function buildForm (opsArray) {
   form.push('<button id="submit">Submit</button>')
 
   document.getElementById('container').innerHTML = form.join('')
-  document.getElementById('submit').addEventListener('click', submit)
+  document.getElementById('submit')
+                          .addEventListener('click', debounce(submit, 2500))
 }
 
 function submit () {
@@ -284,5 +285,13 @@ function rosterPost (id, array) {
 function* range (begin, end, interval = 1) {
   for (let i = begin; i < end; i += interval) {
     yield i
+  }
+}
+
+function debounce(fn, ms) {
+  let timer
+  return function() {
+    clearTimeout(timer)
+    timer = setTimeout(fn, ms)
   }
 }
