@@ -288,6 +288,12 @@ function* range (begin, end, interval = 1) {
   }
 }
 
+/**
+ * Caracteristica de Guzman
+ * Prevent multiple clicks within designated time
+ * @param {Function} fn Function to be executed after waiting
+ * @param {Integer} ms Time to wait before executing function
+ */
 function debounce(fn, ms) {
   let timer
   return function() {
