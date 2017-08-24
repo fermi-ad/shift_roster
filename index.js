@@ -53,7 +53,7 @@ function buildForm (opsArray) {
 
   document.getElementById('container').innerHTML = form.join('')
   document.getElementById('submit')
-                          .addEventListener('click', debounce(submit, 1250))
+                          .addEventListener('click', debounce(submit, 600))
 }
 
 function submit () {
