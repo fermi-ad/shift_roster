@@ -120,7 +120,7 @@ function rosterFromXml (xmlRoster, now) {
 function opsNames (operator) {
   if (actualNames.includes(operator.first_name)) {
     const actualNameIndex = actualNames.indexOf(operator.first_name)
-    return `${desiredNames[actualNameIndex]}  ${operator.last_name}`
+    return `${desiredNames[actualNameIndex]} ${operator.last_name}`
   } else {
     return `${operator.first_name} ${operator.last_name}`
   }
