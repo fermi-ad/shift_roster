@@ -142,14 +142,13 @@ function getBosRoster(now, startDateString, endDateString, callback) {
   const data = `action=get_schedule&start_date=${newDate.startDateString ||
     startDateString}&end_date=${newDate.endDateString || endDateString}`;
 
-  return window.$
-    .ajax({
-      type: "POST",
-      url: "https://www-bd.fnal.gov/BossOSchedule/schedule",
-      cache: false,
-      data: data,
-      dataType: "XML"
-    })
+  return window.$.ajax({
+    type: "POST",
+    url: "https://www-bd.fnal.gov/BossOSchedule/schedule",
+    cache: false,
+    data: data,
+    dataType: "XML"
+  })
     .done(xml => {
       const x2js = new window.X2JS();
       const xmlString = new window.XMLSerializer().serializeToString(xml);
@@ -270,7 +269,9 @@ function rosterPost(id, array) {
 
   entryArray.push(`<u><strong>${array[0]}</strong></u>
                   <ul>
-                    <li>${array[1]} <strong>CC</strong></li>`);
+                    ${
+                      array[1] ? `<li>${array[1]} <strong>CC</strong></li>` : ""
+                    }`);
 
   for (let i = 2; i < array.length; i++) {
     entryArray.push(`<li>${array[i]}</li>`);
@@ -281,14 +282,13 @@ function rosterPost(id, array) {
   formData.append("entryId", id);
   formData.append("text", entryArray.join(""));
 
-  window.$
-    .ajax({
-      url: "https://www-bd.fnal.gov/Elog/api/add/comment",
-      type: "POST",
-      data: formData,
-      processData: false,
-      contentType: false
-    })
+  window.$.ajax({
+    url: "https://www-bd.fnal.gov/Elog/api/add/comment",
+    type: "POST",
+    data: formData,
+    processData: false,
+    contentType: false
+  })
     .done(function() {
       window.alert("Comment Successfully submitted");
       console.log("POST success");
