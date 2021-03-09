@@ -1,6 +1,6 @@
 {
   "name": "shift-roster",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Web application for submitting Operations shift roster to AD ELog.",
   "main": "index.js",
   "directories": {
@@ -12,10 +12,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/beaunus/shiftrosterer.git"
+    "url": "git+ssh://git@github.com:beauremus/shift_roster.git"
   },
   "author": "Beau Harrison <beau@fnal.gov>",
-  "homepage": "https://bitbucket.org/beaunus/shiftrosterer#readme",
+  "homepage": "https://github.com/beauremus/shift_roster",
   "devDependencies": {
     "tape": "^4.6.3"
   },
